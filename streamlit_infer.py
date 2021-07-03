@@ -5,7 +5,7 @@ import streamlit as st
 from infer import predict2
 
 # set title of app
-st.title("Simple Image Classification Application")
+st.title("Osteoclast Quantification Application")
 st.write("")
 
 # enable users to upload images for the model to make predictions
