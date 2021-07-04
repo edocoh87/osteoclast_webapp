@@ -10,7 +10,6 @@ st.write("")
 
 # enable users to upload images for the model to make predictions
 file_up = st.file_uploader("Upload an image", type = "png")
-# file_up = st.file_uploader("Upload an image", type = "jpg")
 
 if file_up is not None:
     # display image that user uploaded
@@ -19,14 +18,7 @@ if file_up is not None:
     st.image(image, caption = 'Uploaded Image.', use_column_width = True)
     st.write("")
     slices_per_axis = st.slider('How many slices per axis? (for full cultures use at least 3)', 1, 5, format="%d slices")
-    print('slices_per_axis', slices_per_axis)
     st.write("You selected ", slices_per_axis, 'slices per axis.')
-    # slices_per_axis = st.selectbox(
-    #     'How many patches per axis? (for full cultures use at least 3)',
-    #     (1, 2, 3, 4, 5))
-    # st.write('You selected:', slices_per_axis)
-    # if slices_per_axis:
-    # slices_per_axis = st.text_input('Images are divided to grid of SxS')
     if st.button('Go'):
         # if slices_per_axis:
         slices_per_axis = int(slices_per_axis)

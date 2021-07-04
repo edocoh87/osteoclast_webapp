@@ -5,12 +5,8 @@ import torch
 from torch.autograd import Variable
 from PIL import Image
 from data import BaseTransform, BoneCellInfer
-# from data import BaseTransform, BoneCellDetection, BoneCellInfer
-# from data import BaseTransform, BoneCellDetection, BoneCellInfer, BONE_CELL_CLASSES_MAP
-# import slice_utils
 from layers import box_utils
 from ssd import build_ssd
-# from eval_bonecell import test_net
 import pickle
 import cv2
 
@@ -44,15 +40,8 @@ def _slice(input_dir, inputfile, output_dir, k_w, k_h):
     fname, ext = inputfile.split('.')
     im = Image.open(os.path.join(input_dir, inputfile))
     for _i, i in enumerate(range(0, im_w-1, box_w)):
-        print('i', _i, i)
         for _j, j in enumerate(range(0, im_h-1, box_h)):
-            print('j', _j, j)
-            # input("Press Enter to continue...")
             rect = (i, j, i+box_w, j+box_h)
-            # print('rect')
-            # print(rect)
-            # print('all boxes')
-            # print(np_targets[:,:4])
             curr_fname = fname + '_{}_{}.'.format(_i+1, _j+1)
             a = im.crop(rect)
             a.save(os.path.join(output_dir, curr_fname + ext))
@@ -92,8 +81,6 @@ def test_net(save_folder, results_file_name, net, cuda, dataset, transform, top_
 
     # timers
     _t = {'im_detect': Timer(), 'misc': Timer()}
-    # output_dir = get_output_dir('ssd300_120000', set_type)
-    # output_dir = get_output_dir(save_folder, set_type)
     det_file = os.path.join(save_folder, results_file_name)
 
     for i in range(num_images):
@@ -104,7 +91,6 @@ def test_net(save_folder, results_file_name, net, cuda, dataset, transform, top_
         if cuda:
             x = x.cuda()
         _t['im_detect'].tic()
-        # detections = net(x).data
         detections = net(x).data
         # print(detections)
         detect_time = _t['im_detect'].toc(average=False)
@@ -131,9 +117,6 @@ def test_net(save_folder, results_file_name, net, cuda, dataset, transform, top_
                                   scores[:, np.newaxis])).astype(np.float32,
                                                                  copy=False)
             all_boxes[j][i] = cls_dets
-
-        # print('im_detect: {:d}/{:d} {:.3f}s'.format(i + 1,
-        #                                             num_images, detect_time))
 
     with open(det_file, 'wb') as f:
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
@@ -165,7 +148,6 @@ class ImageInfer:
             img_2d_arr.append(curr_col)
         cols = [cv2.vconcat(img_2d_arr[0])]
         for i in range(1, len(img_2d_arr)):
-            print('stitching row {}'.format(i))
             cols.append(cv2.vconcat(img_2d_arr[i]))
         return cv2.hconcat(cols)
     
@@ -209,8 +191,6 @@ class ImageInfer:
         pred_img_arr = []
         post_nms_pred_img_arr = []
         post_nms_pred_img_area_arr = []
-        # [print(_id) for _id in self.dataset.ids]
-        # exit()
         img_res_classes = {
             1: 0,
             2: 0,
@@ -219,13 +199,11 @@ class ImageInfer:
         }
         for i in range(self.slices_per_axis):
             for j in range(self.slices_per_axis):
-                print(self.output_dir_name_template.format(i+1, j+1))
                 idx = self.dataset.get_img_idx(self.output_dir_name_template.format(j+1, i+1))
                 _curr_img_recs = parse_predictions(results, idx, threshold)
                 curr_img_recs = [_ for _ in _curr_img_recs if _[5] == IDX_TO_CALC_AREA]
                 for _ in curr_img_recs:
                     img_res_classes[_[5]] += 1
-                # gt_img, pred_img, post_nms_pred_img = self.parse_image(idx, curr_img_recs)
                 (gt_img, gt_area), (pred_img, pred_area), (post_nms_pred_img, post_nms_pred_area) = self.parse_image(idx, curr_img_recs)
                 gt_img_arr.append(gt_img)
                 pred_img_arr.append(pred_img)
@@ -233,44 +211,4 @@ class ImageInfer:
                 post_nms_pred_img_area_arr.append(post_nms_pred_area)
         img_area = np.mean(post_nms_pred_img_area_arr)
 
-        print(self.img_fname)
-        print(img_res_classes)
         return self.stitch_image(post_nms_pred_img_arr), img_area
-        # return self.stitch_image(gt_img_arr), self.stitch_image(pred_img_arr), self.stitch_image(post_nms_pred_img_arr)
-            # _curr_img_recs = np.array(curr_img_recs).astype(np.int32)
-            # print(_curr_img_recs)
-            
-
-if __name__=='__main__':
-    model = 'weights/bonecell_mean_0_0_0/ssd300_BONECELL_final.pth'
-
-    img_dir = '/Users/edock/Work/bone_cell/data/BoneCellData/test_sliced_small_subset'
-    img_fname = 'G4_03_02_2_2.png'
-    # img_dir = '/Users/edock/Work/bone_cell/data/BoneCellData/test_new_pred_per_img'
-    # img_base_dir = '/Users/edock/Work/bone_cell/data/BoneCellData/zamzam_exp'
-    # img_fname = '21_10-rl3.png'
-    # img_fname = 'RL_c4.png'
-    imgInfer = ImageInfer(img_dir=img_dir, img_fname=img_fname, slices_per_axis=3)
-    # dataset = BoneCellInfer(root=img_dir, transform=BaseTransform(300, (0,0,0)))
-    num_classes = 5
-    net = build_ssd('test', 300, num_classes) # initialize SSD
-    # net.load_state_dict(torch.load(args.trained_model))
-    net.load_state_dict(torch.load(model, map_location=torch.device('cpu')))
-    net.eval()
-    print('Finished loading model!')
-    imgInfer.predict(net)
-    print('finished predicting.')
-    pred_w_nms_img, img_area = imgInfer.parse_results()
-    # gt_img, pred_img, pred_w_nms_img = imgInfer.parse_results()
-    # pred_w_nms_img = imgInfer.parse_results()
-    print('num of recs: {}'.format(sum(imgInfer.post_nms_num_of_recs)))
-    print('area: {}'.format(img_area))
-    resized_image = cv2.resize(pred_w_nms_img, (800, 800))
-    cv2.imwrite(os.path.join(imgInfer.output_dir, 'pred_output.png'), resized_image)
-    cv2.imshow('image', resized_image)
-    cv2.waitKey(0)
-    # cv2.imshow('image', pred_img)
-    # cv2.waitKey(0)
-    # cv2.imshow('image', pred_w_nms_img)
-    # cv2.waitKey(0)
-    

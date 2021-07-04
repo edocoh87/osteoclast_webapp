@@ -31,20 +31,14 @@ class Detect(Function):
             prior_data: (tensor) Prior boxes and variances from priorbox layers
                 Shape: [1,num_priors,4]
         """
-        # print(loc_data.shape)
-        # print(prior_data.shape)
         num = loc_data.size(0)  # batch size
         num_priors = prior_data.size(0)
         output = torch.zeros(num, self.num_classes, self.top_k, 5)
-        # print(output.shape)
         conf_preds = conf_data.view(num, num_priors,
                                     self.num_classes).transpose(2, 1)
-        # exit()
         # Decode predictions into bboxes.
         for i in range(num):
-            print('loc data: {}'.format(loc_data[i]))
             decoded_boxes = decode(loc_data[i], prior_data, self.variance)
-            print('decoded box: {}'.format(decoded_boxes))
             # For each class, perform nms
             conf_scores = conf_preds[i].clone()
 
