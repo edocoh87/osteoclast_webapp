@@ -7,9 +7,10 @@ Table of Contents :bookmark_tabs:
 - [Installation](#installation)
 - [Steps to Use the Application](#steps-to-Use-the-application)
 - [Code and Resources Used](#code-and-resources-used)
+- [Citation](#citation)
 
 ## Overview
-A simple web demo with minimal framework using PyTorch and Streamlit to showcase an image classification model
+This repository contains code and the model to run osteoclast quantification. For more details please refer to our paper in https://doi.org/10.3389/fcell.2021.674710.
 
 ## Installation
 
@@ -69,3 +70,16 @@ streamlit run streamlit_infer.py
 ## Code and Resources Used
 - Python: Version 3.7
 - Packages: PIL, torchvision, torch, streamlit, opencv-python
+
+## Citation
+If you find this work helpful, please cite our paper with the following bibtex
+```
+@article{cohen2021quantification,
+  title={Quantification of osteoclasts in culture, powered by machine learning},
+  author={Cohen-Karlik, Edo and Awida, Zamzam and Bergman, Ayelet and Eshed, Shahar and Nestor, Omer and Kadashev, Michelle and Yosef, Sapir Ben and Saed, Hussam and Mansour, Yishay and Globerson, Amir and others},
+  journal={Frontiers in Cell and Developmental Biology},
+  volume={9},
+  year={2021},
+  publisher={Frontiers Media SA}
+}
+```
