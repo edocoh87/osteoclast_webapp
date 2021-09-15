@@ -29,6 +29,8 @@ def predict2(image, file_name, slices_per_axis):
         'relative_area': pred_w_nms_area,
     }
     resized_image = cv2.resize(pred_w_nms_img, (2000, 2000))
-    output_file_name = os.path.join('outputs/', 'pred_output_' + file_name + '_slice_{}.png'.format(slices_per_axis))
-    cv2.imwrite(output_file_name, resized_image)
+    imgInfer.deleteImg()
+
+    # output_file_name = os.path.join('outputs/', 'pred_output_' + file_name + '_slice_{}.png'.format(slices_per_axis))
+    # cv2.imwrite(output_file_name, resized_image)
     return resized_image, res

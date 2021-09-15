@@ -1,4 +1,5 @@
 import os
+import shutil
 import numpy as np
 import time
 import torch
@@ -150,6 +151,10 @@ class ImageInfer:
         for i in range(1, len(img_2d_arr)):
             cols.append(cv2.vconcat(img_2d_arr[i]))
         return cv2.hconcat(cols)
+
+    def deleteImg(self):
+        # os.rmdir(self.output_dir)
+        shutil.rmtree(self.output_dir)
     
     def predict(self, net):
         test_net(
