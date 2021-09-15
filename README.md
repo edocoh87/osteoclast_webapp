@@ -20,6 +20,9 @@ https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html
 - download and install git for the relevant operating system:
 https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 
+- download and install git-lfs for the relevant operating system:
+https://git-lfs.github.com
+
 - open the conda interperter that was installed
 - create a new virtual environment by typing in the interperter:
 ```
